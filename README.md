@@ -6,26 +6,26 @@ The code for the infrastructure behind `petroniocoelho.com` and friends. While r
 ### **Authoritative DNS**
 Running secondary/development domains. Primary domain is still on Cloudflare for reliability purposes.
 
-[*] Automated DNSSEC
-[*] Master with dual read slave configuration
-[*] TSIG slave authentication
+- [x] Automated DNSSEC
+- [x] Master with dual read slave configuration
+- [x] TSIG slave authentication
 
 ### **Base servers**
-[*] Automated updating enabled
-[*] Key-only and no root SSH
+- [x] Automated updating enabled
+- [x] Key-only and no root SSH
 
 ### **Resilio Sync**
 A service I have used for a long time, great for backing up mobile devices.
 
-[*] Mounted to a Hetzner storage box via encrypted CIFS
+- [x] Mounted to a Hetzner storage box via encrypted CIFS
 
 ## Planned Services & Features
 
-[ ] Monitoring
-[ ] Nextcloud instance
-[ ] SMTP & IMAP
-[ ] Wireguard VPN for services that don't need to be publicly exposed
-[ ] Yubikey/U2F requirement for sudo
+- [ ] Monitoring
+- [ ] Nextcloud instance
+- [ ] SMTP & IMAP
+- [ ] Wireguard VPN for services that don't need to be publicly exposed
+- [ ] Yubikey/U2F requirement for sudo
 
 ## FAQ
 
