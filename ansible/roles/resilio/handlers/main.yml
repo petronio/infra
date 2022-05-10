@@ -1,0 +1,4 @@
+- name: restart resilio-sync
+  ansible.builtin.systemd:
+    name: resilio-sync.service
+    state: restarted

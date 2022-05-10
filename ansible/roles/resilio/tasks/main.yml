@@ -1,0 +1,77 @@
+- name: Install cifs-utils
+  ansible.builtin.dnf:
+    name: cifs-utils
+    state: present
+
+- name: Import Resilio Sync key
+  ansible.builtin.rpm_key:
+    key: https://linux-packages.resilio.com/resilio-sync/key.asc
+    state: present
+
+- name: Add Resilio Sync repository
+  ansible.builtin.yum_repository:
+    name: resilio-sync
+    description: Resilio Sync
+    baseurl: https://linux-packages.resilio.com/resilio-sync/rpm/$basearch
+    gpgcheck: yes
+
+- name: Install resilio-sync
+  ansible.builtin.dnf:
+    name: resilio-sync
+    state: present
+
+- name: Create mount credentials file
+  ansible.builtin.template:
+    src: credentials.j2
+    dest: /etc/rslsync_mount_credentials.txt
+    owner: root
+    group: root
+    mode: "600"
+
+- name: Create /mnt/rslsync/
+  ansible.builtin.file:
+    path: /mnt/rslsync
+    owner: rslsync
+    group: rslsync
+    mode: '770'
+    state: directory
+
+- name: Add /mnt/rslsync mount
+  ansible.posix.mount:
+    path: /mnt/rslsync
+    src: "//{{ lookup('community.general.passwordstore', 'storage_box/server') }}/{{ lookup('community.general.passwordstore', 'storage_box/resilio_username') }}"
+    fstype: cifs
+    opts: iocharset=utf8,rw,credentials=/etc/rslsync_mount_credentials.txt,uid=rslsync,gid=rslsync,file_mode=0660,dir_mode=0770,seal
+    state: mounted
+
+- name: Configure resilio-sync
+  ansible.builtin.template:
+    src: config.j2
+    dest: /etc/resilio-sync/config.json
+    owner: rslsync
+    group: rslsync
+    mode: '640'
+  notify: restart resilio-sync
+
+- name: Create resilio-sync service folder
+  ansible.builtin.file:
+    path: /etc/systemd/system/resilio-sync.service.d
+    owner: root
+    group: root
+    mode: '755'
+    state: directory
+
+- name: Require that /mnt/rslsync be mounted for resilio-sync service to start
+  ansible.builtin.copy:
+    src: service_override.conf
+    dest: /etc/systemd/system/resilio-sync.service.d/override.conf
+    owner: root
+    group: root
+    mode: '644'
+  notify: reload systemd daemons
+
+- name: Start resilio-sync service
+  ansible.builtin.systemd:
+    name: resilio-sync.service
+    state: started
+    enabled: yes

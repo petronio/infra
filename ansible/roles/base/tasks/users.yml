@@ -1,0 +1,12 @@
+- name: Create petronio user
+  ansible.builtin.user:
+    name: petronio
+    comment: Petronio Coelho
+    groups: wheel
+    password: '!'
+
+- name: Add authorized_keys for petronio
+  ansible.posix.authorized_key:
+    user: petronio
+    key: "{{ lookup('file', '~/.ssh/id_ed25519.pub') }}"
+    exclusive: yes

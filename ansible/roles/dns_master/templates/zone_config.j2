@@ -1,0 +1,9 @@
+zone "{{ item }}" IN {
+    type master;
+    notify yes;
+    notify-source {{ lookup('community.general.dig', 'internal.' + ansible_fqdn, 'qtype=A' ) }};
+    notify-source-v6 {{ lookup('community.general.dig', ansible_fqdn, 'qtype=AAAA' ) }};
+    allow-transfer { ! { ! { {{ dns_slave_ips }} }; any; }; { key "{{ dns_slaves | join('"; key "') }}"; }; };
+    file "{{ item }}.zone";
+    dnssec-policy default;
+};

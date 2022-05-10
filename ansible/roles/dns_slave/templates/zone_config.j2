@@ -1,0 +1,7 @@
+zone "{{ item }}" IN {
+    type slave;
+    notify no;
+    allow-notify { {{ dns_master_ipv6 }}; };
+    masters { {{ dns_master_ipv4 }}; };
+    file "{{ item }}.zone";
+};

@@ -1,0 +1,51 @@
+- name: Install bind
+  ansible.builtin.dnf:
+    name: bind
+    state: present
+
+- name: Get internal IPv4 for DNS master
+  ansible.builtin.set_fact:
+    dns_master_ipv4: "{{ lookup('community.general.dig', 'internal.' + dns_master, 'qtype=A' ) }}"
+
+- name: Get IPv6 for DNS master
+  ansible.builtin.set_fact:
+    dns_master_ipv6: "{{ lookup('community.general.dig', dns_master, 'qtype=AAAA' ) }}"
+
+- name: Manage named.conf
+  ansible.builtin.template:
+    src: named.j2
+    dest: /etc/named.conf
+    owner: root
+    group: named
+    mode: "640"
+  register: named_config
+
+- name: Manage TSIG key
+  ansible.builtin.template:
+    src: tsig.j2
+    dest: /etc/named/{{ ansible_fqdn }}.key
+    owner: root
+    group: named
+    mode: "640"
+
+- name: Manage zone configurations
+  ansible.builtin.template:
+    src: zone_config.j2
+    dest: /etc/named/{{ item }}.conf
+    owner: root
+    group: named
+    mode: "640"
+  loop: "{{ dns_zones }}"
+  register: zone_config
+
+- name: Start named service
+  ansible.builtin.systemd:
+    name: named.service
+    state: started
+    enabled: yes
+
+- name: restart named
+  ansible.builtin.systemd:
+    name: named.service
+    state: restarted
+  when: named_config.changed or zone_config.changed

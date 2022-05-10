@@ -1,0 +1,6 @@
+- hosts: resilio
+  become: true
+  roles:
+    - resilio
+  handlers:
+    - include_tasks: roles/base/handlers/main.yml

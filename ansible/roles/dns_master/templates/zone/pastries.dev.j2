@@ -1,0 +1,11 @@
+$ORIGIN {{ item }}.
+$TTL 3H
+@         IN SOA   @ hostmaster (
+                         2022050901; serial
+                         1H; refresh
+                         1H; retry
+                         1W; expire
+                         3H ) ; TTL
+{% for dns_slave in dns_slaves %}
+@         IN NS    {{ dns_slave }}.
+{% endfor %}

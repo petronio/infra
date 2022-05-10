@@ -1,0 +1,4 @@
+- import_playbook: base.yml
+- import_playbook: resilio.yml
+- import_playbook: dns_master.yml
+- import_playbook: dns_slave.yml

@@ -1,0 +1,14 @@
+- name: Allow wheel group to sudo without password
+  community.general.sudoers:
+    name: 10-wheel-nopassword-all
+    group: wheel
+    commands: ALL
+    nopassword: yes
+
+- name: Replace /etc/sudoers
+  ansible.builtin.copy:
+    src: sudo/sudoers
+    dest: /etc/sudoers
+    owner: root
+    group: root
+    mode: '440'

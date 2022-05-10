@@ -1,0 +1,28 @@
+all:
+  hosts:
+    ebino.petroniocoelho.com:
+    furano.petroniocoelho.com:
+    toba.petroniocoelho.com:
+  children:
+    dns:
+      children:
+        dns_master:
+          hosts:
+            toba.petroniocoelho.com:
+        dns_slave:
+          hosts:
+            ebino.petroniocoelho.com:
+            furano.petroniocoelho.com:
+      vars:
+        dns_master: toba.petroniocoelho.com
+        dns_slaves:
+          - ebino.petroniocoelho.com
+          - furano.petroniocoelho.com
+        dns_zones:
+          - coelho.dev
+          - pastries.dev
+          - petro.dev
+          - petronio.dev
+    resilio:
+      hosts:
+        toba.petroniocoelho.com:

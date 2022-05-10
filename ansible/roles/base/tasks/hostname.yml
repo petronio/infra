@@ -1,0 +1,18 @@
+- name: Set hostname to inventory_hostname var
+  ansible.builtin.hostname:
+    name: "{{inventory_hostname}}"
+    use: systemd
+  register: hostname_change
+
+- name: Fetch new hostname
+  setup:
+    gather_subset: "network"
+  when: hostname_change.changed
+
+- name: Manage /etc/hosts
+  ansible.builtin.template:
+    src: hostname/hosts.j2
+    dest: /etc/hosts
+    owner: root
+    group: root
+    mode: '644'
