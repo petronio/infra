@@ -54,3 +54,7 @@ module "terraform_support" {
 module "servers" {
   source = "./modules/servers"
 }
+
+module "acme" {
+  source = "./modules/acme"
+}

@@ -3,14 +3,6 @@
     name: bind
     state: present
 
-- name: Get internal IPv4 for DNS master
-  ansible.builtin.set_fact:
-    dns_master_ipv4: "{{ lookup('community.general.dig', 'internal.' + dns_master, 'qtype=A' ) }}"
-
-- name: Get IPv6 for DNS master
-  ansible.builtin.set_fact:
-    dns_master_ipv6: "{{ lookup('community.general.dig', dns_master, 'qtype=AAAA' ) }}"
-
 - name: Manage named.conf
   ansible.builtin.template:
     src: named.j2

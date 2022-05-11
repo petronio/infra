@@ -60,10 +60,10 @@ include "/etc/named/{{ dns_zone }}.conf";
 
 include "/etc/named/{{ ansible_fqdn }}.key";
 
-server {{ dns_master_ipv4 }} {
+server {{ lookup('community.general.dig', 'internal.' + dns_master, 'qtype=A' ) }} {
     keys { "{{ ansible_fqdn }}"; };
 };
 
-server {{ dns_master_ipv6 }} {
+server {{ lookup('community.general.dig', dns_master, 'qtype=AAAA' ) }} {
     keys { "{{ ansible_fqdn }}"; };
 };

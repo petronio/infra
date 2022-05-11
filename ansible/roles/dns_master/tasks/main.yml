@@ -3,11 +3,6 @@
     name: bind
     state: present
 
-- name: Get IPs for DNS slaves
-  ansible.builtin.set_fact:
-    dns_slave_ips: "{{ dns_slave_ips | default() }}{{ lookup('community.general.dig', 'internal.' + item, 'qtype=A' ) }}; "
-  loop: "{{ dns_slaves }}"
-
 - name: Manage named.conf
   ansible.builtin.template:
     src: named.j2
