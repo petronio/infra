@@ -25,7 +25,6 @@ A service I have used for a long time, great for backing up mobile devices.
 - [ ] Nextcloud instance
 - [ ] SMTP & IMAP
 - [ ] Wireguard VPN for services that don't need to be publicly exposed
-- [ ] Yubikey/U2F requirement for sudo
 
 ## FAQ
 
