@@ -1,0 +1,135 @@
+- name: Include dns group vars
+  ansible.builtin.include_vars:
+    file: ../../group_vars/dns.yml
+
+- name: Install required packages
+  ansible.builtin.dnf:
+    name:
+      - bind-utils
+      - git
+    state: present
+
+- name: Create {{ ssl_bot_user }} user
+  ansible.builtin.user:
+    name: "{{ ssl_bot_user }}"
+    comment: SSL bot
+    home: /var/{{ ssl_bot_user }}
+    password: '!'
+
+- name: Create /etc/dehydrated/
+  ansible.builtin.file:
+    path: /etc/dehydrated/
+    owner: "{{ ssl_bot_user }}"
+    group: "{{ ssl_bot_group }}"
+    mode: '750'
+    state: directory
+
+- name: Clone dehydrated.git rev {{ dehydrated_revision }}
+  ansible.builtin.git:
+    dest: /var/{{ ssl_bot_user }}/dehydrated
+    repo: https://github.com/dehydrated-io/dehydrated.git
+    version: "{{ dehydrated_revision }}"
+  become_user: "{{ ssl_bot_user }}"
+
+- name: Manage /etc/dehydrated/config
+  ansible.builtin.template:
+    src: config.j2
+    dest: /etc/dehydrated/config
+    owner: "{{ ssl_bot_user }}"
+    group: "{{ ssl_bot_group }}"
+    mode: '640'
+
+- name: Manage /etc/dehydrated/domains.txt
+  ansible.builtin.template:
+    src: domains.j2
+    dest: /etc/dehydrated/domains.txt
+    owner: "{{ ssl_bot_user }}"
+    group: "{{ ssl_bot_group }}"
+    mode: '640'
+
+- name: Manage /etc/dehydrated/tsig.key
+  ansible.builtin.template:
+    src: tsig.j2
+    dest: /etc/dehydrated/tsig.key
+    owner: "{{ ssl_bot_user }}"
+    group: "{{ ssl_bot_group }}"
+    mode: "640"
+
+- name: Manage /etc/dehydrated/hook.sh
+  ansible.builtin.template:
+    src: hook.j2
+    dest: /etc/dehydrated/hook.sh
+    owner: "{{ ssl_bot_user }}"
+    group: "{{ ssl_bot_group }}"
+    mode: '750'
+
+- name: Ensure {{ ssl_bot_user }} can write to {{ pki_cert_dir }}
+  ansible.posix.acl:
+    path: "{{ pki_cert_dir }}"
+    entity: "{{ ssl_bot_user }}"
+    etype: user
+    permissions: rwX
+    state: present
+
+- name: Ensure {{ ssl_bot_user }} can write to {{ pki_key_dir }}
+  ansible.posix.acl:
+    path: "{{ pki_key_dir }}"
+    entity: "{{ ssl_bot_user }}"
+    etype: user
+    permissions: rwX
+    state: present
+
+- name: Check whether dehydrated has registered
+  ansible.builtin.stat:
+    path: /var/{{ ssl_bot_user }}/registered
+  register: registered_file
+
+- name: Register with provider
+  ansible.builtin.shell:
+    cmd: './dehydrated --register --accept-terms'
+    chdir: /var/{{ ssl_bot_user }}/dehydrated
+  become_user: "{{ ssl_bot_user }}"
+  when: registered_file.stat.exists == False
+  register: registered
+
+- name: Created registered file
+  ansible.builtin.file:
+    path: /var/{{ ssl_bot_user }}/registered
+    state: touch
+    owner: "{{ ssl_bot_user }}"
+    group: "{{ ssl_bot_group }}"
+  when: (registered.rc is defined) and (registered.rc == 0)
+
+- name: Install service
+  ansible.builtin.template:
+    src: service.j2
+    dest: /etc/systemd/system/ssl-bot.service
+    owner: root
+    group: root
+    mode: "644"
+  notify: reload systemd daemons
+  register: service_file
+
+- name: Install timer
+  ansible.builtin.template:
+    src: timer.j2
+    dest: /etc/systemd/system/ssl-bot.timer
+    owner: root
+    group: root
+    mode: "644"
+  notify: reload systemd daemons
+
+- name: Flush handlers
+  meta: flush_handlers
+
+- name: Enable timer
+  ansible.builtin.systemd:
+    name: ssl-bot.timer
+    state: started
+    enabled: yes
+
+- name: Run service
+  ansible.builtin.systemd:
+    name: ssl-bot.service
+    state: started
+  when: service_file.changed

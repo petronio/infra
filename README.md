@@ -12,6 +12,7 @@ Running secondary/development domains. Primary domain is still on Cloudflare for
 
 ### **Base servers**
 - [x] Automated updating enabled
+- [x] Automated Let's Encrypt
 - [x] Key-only and no root SSH
 
 ### **Resilio Sync**
@@ -46,6 +47,9 @@ The `pass` utility is used extensively to store secrets outside of this repo and
 │   ├── cloudflare
 │   └── hetzner
 ├── dns
+│   ├── _acme_challenge.ebino.petroniocoelho.com_tsig
+│   ├── _acme_challenge.furano.petroniocoelho.com_tsig
+│   ├── _acme_challenge.toba.petroniocoelho.com_tsig
 │   ├── ebino.petroniocoelho.com_tsig
 │   └── furano.petroniocoelho.com_tsig
 └── storage_box
@@ -53,10 +57,13 @@ The `pass` utility is used extensively to store secrets outside of this repo and
     ├── resilio_password
     ├── resilio_username
     └── server
+
 ```
 
 AWS authentication is handled with an `awscli` profile.
 
 If you intend to use the `dns_master` role, keep in mind that aside from pointing the nameservers to your `dns_slave` server at your registrar, you'll need to generate a DS record from the automatically generated keys with `dnssec-dsfromkey` and add it to your registrar for DNSSEC to validate. The keys are located at `/var/named/` on the master and end with `.key`.
+
+Since Cloudflare is doesn't have a method to restrict API tokens to edit specific records, only complete zones, we use a secondary domain managed by `dns_master` to handle the SSL certificate challenges. For the present configuration the secondary domain is `coelho.dev`, so you can run a search & replace for that.
 
 With the exception of the above, you should just do a search & replace for `petroniocoelho.com`, `petroniocoelho_com`, and any server names you'd like to change. No need to worry about IP addresses, nothing is hard coded with the exception of the Hetzner network & subnet (which are also easy to change). Disable any of the ansible playbooks that you don't want to use from `all.yml` and you should be good to go.

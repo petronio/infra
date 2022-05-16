@@ -54,10 +54,17 @@ logging {
 // include "/etc/named.rfc1912.zones";
 include "/etc/named.root.key";
 
+// Managed zones
 {% for dns_zone in dns_zones %}
 include "/etc/named/{{ dns_zone }}.conf";
 {% endfor %}
 
+// Slave keys
 {% for dns_slave in dns_slaves %}
 include "/etc/named/{{ dns_slave }}.key";
+{% endfor %}
+
+// SSL bot keys
+{% for acme_host in acme_hosts.keys() %}
+include "/etc/named/{{ acme_tsig_prefix }}.{{ acme_host }}.key";
 {% endfor %}

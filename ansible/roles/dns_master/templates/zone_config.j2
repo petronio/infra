@@ -6,4 +6,13 @@ zone "{{ item }}" IN {
     allow-transfer { ! { ! { {% for dns_slave in dns_slaves %}{{ lookup('community.general.dig', 'internal.' + dns_slave, 'qtype=A') }}; {% endfor -%} }; any; }; { key "{{ dns_slaves | join('"; key "') }}"; }; };
     file "{{ item }}.zone";
     dnssec-policy default;
+{% if item == acme_zone %}
+    update-policy {
+{% for acme_host, acme_host_vars in acme_hosts.items() %}
+{% for domain in acme_host_vars['domains'] %}
+        grant "{{ acme_tsig_prefix }}.{{ acme_host }}" name {{ domain }}.{{ acme_zone }} TXT;
+{% endfor %}
+{% endfor %}
+    };
+{% endif %}
 };

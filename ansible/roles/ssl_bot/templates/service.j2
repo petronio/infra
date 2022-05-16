@@ -1,0 +1,8 @@
+[Unit]
+Description=Run SSL bot
+
+[Service]
+Type=oneshot
+User={{ ssl_bot_user }}
+Group={{ ssl_bot_group }}
+ExecStart=/var/{{ ssl_bot_user }}/dehydrated/dehydrated -c

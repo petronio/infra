@@ -54,16 +54,18 @@ logging {
 //include "/etc/named.rfc1912.zones";
 include "/etc/named.root.key";
 
+// Managed zones
 {% for dns_zone in dns_zones %}
 include "/etc/named/{{ dns_zone }}.conf";
 {% endfor %}
 
+// Slave key
 include "/etc/named/{{ ansible_fqdn }}.key";
 
+// Master server
 server {{ lookup('community.general.dig', 'internal.' + dns_master, 'qtype=A' ) }} {
     keys { "{{ ansible_fqdn }}"; };
 };
-
 server {{ lookup('community.general.dig', dns_master, 'qtype=AAAA' ) }} {
     keys { "{{ ansible_fqdn }}"; };
 };

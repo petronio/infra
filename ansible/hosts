@@ -16,3 +16,8 @@ all:
     resilio:
       hosts:
         toba.petroniocoelho.com:
+    ssl_bot:
+      hosts:
+        ebino.petroniocoelho.com:
+        furano.petroniocoelho.com:
+        toba.petroniocoelho.com:

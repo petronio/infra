@@ -1,1 +1,5 @@
+{% if is_ssl_bot_loop is defined %}
+{{ lookup('community.general.passwordstore', 'dns/' + acme_tsig_prefix + '.' + item + '_tsig returnall=yes') }}
+{% else %}
 {{ lookup('community.general.passwordstore', 'dns/' + item + '_tsig returnall=yes') }}
+{% endif %}

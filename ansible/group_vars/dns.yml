@@ -3,6 +3,7 @@ dns_slaves:
   - ebino.petroniocoelho.com
   - furano.petroniocoelho.com
 dns_zones:
+  - acme.coelho.dev
   - coelho.dev
   - pastries.dev
   - petro.dev

@@ -1,0 +1,4 @@
+- hosts: ssl_bot
+  become: true
+  roles:
+    - ssl_bot

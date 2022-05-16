@@ -1,3 +1,7 @@
+- name: Include ssl_bot group vars
+  ansible.builtin.include_vars:
+    file: ../../group_vars/ssl_bot.yml
+
 - name: Install bind
   ansible.builtin.dnf:
     name: bind
@@ -12,7 +16,7 @@
     mode: "640"
   register: named_config
 
-- name: Manage TSIG keys
+- name: Manage TSIG keys for slaves
   ansible.builtin.template:
     src: tsig.j2
     dest: /etc/named/{{ item }}.key
@@ -20,6 +24,17 @@
     group: named
     mode: "640"
   loop: "{{ dns_slaves }}"
+
+- name: Manage TSIG keys for ssl bots
+  ansible.builtin.template:
+    src: tsig.j2
+    dest: /etc/named/{{ acme_tsig_prefix }}.{{ item }}.key
+    owner: root
+    group: named
+    mode: "640"
+  vars:
+    is_ssl_bot_loop: true
+  loop: "{{ acme_hosts.keys() }}"
 
 - name: Manage zone configurations
   ansible.builtin.template:
@@ -38,6 +53,7 @@
     owner: named
     group: named
     mode: "640"
+    force: "{% if item == acme_zone %}no{% else %}yes{% endif %}" # We don't want to overwrite a dynamic zone
   loop: "{{ dns_zones }}"
   register: zone_files
 

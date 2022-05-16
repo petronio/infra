@@ -1,0 +1,5 @@
+{% for acme_host, acme_host_vars in acme_hosts.items() %}
+{% if acme_host == ansible_fqdn %}
+{{ acme_host_vars['domains']|join(' ') }}
+{% endif %}
+{% endfor %}
