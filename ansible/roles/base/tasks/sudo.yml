@@ -4,6 +4,7 @@
     group: wheel
     commands: ALL
     nopassword: yes
+    runas: ALL
 
 - name: Replace /etc/sudoers
   ansible.builtin.copy:
