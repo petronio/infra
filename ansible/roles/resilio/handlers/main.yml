@@ -1,3 +1,7 @@
+- name: reload systemd daemons
+  ansible.builtin.systemd:
+    daemon_reload: yes
+
 - name: restart resilio-sync
   ansible.builtin.systemd:
     name: resilio-sync.service
