@@ -70,6 +70,9 @@
     mode: '644'
   notify: reload systemd daemons
 
+- name: Flush handlers
+  meta: flush_handlers
+
 - name: Start resilio-sync service
   ansible.builtin.systemd:
     name: resilio-sync.service
