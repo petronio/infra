@@ -60,26 +60,6 @@ resource "hcloud_firewall" "dns_in" {
   }
 }
 
-resource "hcloud_firewall" "dns_in_internal" {
-  name = "dns_in_internal"
-  rule {
-    direction = "in"
-    protocol  = "tcp"
-    port      = "53"
-    source_ips = [
-      hcloud_network_subnet.infra_1.ip_range
-    ]
-  }
-  rule {
-    direction = "in"
-    protocol  = "udp"
-    port      = "53"
-    source_ips = [
-      hcloud_network_subnet.infra_1.ip_range
-    ]
-  }
-}
-
 resource "hcloud_firewall" "ssh_in" {
   name = "ssh_in"
   rule {
@@ -242,7 +222,6 @@ resource "hcloud_server" "toba" {
   delete_protection = true
   image             = "centos-stream-9"
   firewall_ids = [
-    hcloud_firewall.dns_in_internal.id,
     hcloud_firewall.ssh_in.id
   ]
   location           = "fsn1"
