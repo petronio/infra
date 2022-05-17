@@ -31,7 +31,7 @@ resource "hcloud_network_subnet" "infra_1" {
   type         = "cloud"
   network_id   = hcloud_network.infra.id
   network_zone = "eu-central"
-  ip_range     = "172.24.0.0/24"
+  ip_range     = cidrsubnet(hcloud_network.infra.ip_range, 8, 0)
 }
 
 #
