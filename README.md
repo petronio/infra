@@ -14,6 +14,7 @@ Running secondary/development domains. Primary domain is still on Cloudflare for
 - [x] Automated updating enabled
 - [x] Automated Let's Encrypt
 - [x] Key-only and no root SSH
+- [x] Wireguard VPN (bi-directional)
 
 ### **Resilio Sync**
 A service I have used for a long time, great for backing up mobile devices.
@@ -25,7 +26,6 @@ A service I have used for a long time, great for backing up mobile devices.
 - [ ] Monitoring
 - [ ] Nextcloud instance
 - [ ] SMTP & IMAP
-- [ ] Wireguard VPN for services that don't need to be publicly exposed
 
 ## FAQ
 
@@ -52,12 +52,14 @@ The `pass` utility is used extensively to store secrets outside of this repo and
 │   ├── _acme_challenge.toba.petroniocoelho.com_tsig
 │   ├── ebino.petroniocoelho.com_tsig
 │   └── furano.petroniocoelho.com_tsig
-└── storage_box
-    ├── resilio_config
-    ├── resilio_password
-    ├── resilio_username
-    └── server
-
+├── storage_box
+│   ├── resilio_config
+│   ├── resilio_password
+│   ├── resilio_username
+│   └── server
+└── wireguard
+    ├── osaka
+    └── shimane
 ```
 
 AWS authentication is handled with an `awscli` profile.

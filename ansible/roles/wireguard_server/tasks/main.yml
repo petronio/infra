@@ -1,0 +1,55 @@
+- name: Install wireguard
+  ansible.builtin.dnf:
+    name: wireguard-tools
+    state: present
+
+- name: Create private key
+  ansible.builtin.shell:
+    cmd: wg genkey > {{ ansible_fqdn }}.private
+  args:
+    chdir: /etc/wireguard/
+    creates: /etc/wireguard/{{ ansible_fqdn }}.private
+
+- name: Set permissions on private key
+  ansible.builtin.file:
+    path: /etc/wireguard/{{ ansible_fqdn }}.private
+    owner: root
+    group: root
+    mode: '0640'
+    state: file
+
+- name: Create public key
+  ansible.builtin.shell:
+    cmd: cat {{ ansible_fqdn }}.private | wg pubkey > {{ ansible_fqdn }}.public
+  args:
+    chdir: /etc/wireguard/
+    creates: /etc/wireguard/{{ ansible_fqdn }}.public
+
+- name: Set permissions on public key
+  ansible.builtin.file:
+    path: /etc/wireguard/{{ ansible_fqdn }}.public
+    owner: root
+    group: root
+    mode: '0644'
+    state: file
+
+- name: Manage configuration
+  ansible.builtin.template:
+    src: conf.j2
+    dest: /etc/wireguard/wg0.conf
+    owner: root
+    group: root
+    mode: '0640'
+  notify: restart wg0
+
+- name: Enable ipv4 forwarding
+  ansible.posix.sysctl:
+    name: net.ipv4.ip_forward
+    value: '1'
+    sysctl_set: yes
+
+- name: Start wireguard service
+  ansible.builtin.systemd:
+    name: wg-quick@wg0.service
+    state: started
+    enabled: yes

@@ -3,3 +3,4 @@
 - import_playbook: dns_master.yml
 - import_playbook: dns_slave.yml
 - import_playbook: ssl_bot.yml
+- import_playbook: wireguard_server.yml

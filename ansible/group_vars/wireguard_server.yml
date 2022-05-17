@@ -1,0 +1,11 @@
+wireguard_address: 172.24.200.1/24
+wireguard_clients:
+  osaka:
+    allowed_ips:
+      - 172.24.200.2/32
+    pubkey: "{{ lookup('community.general.passwordstore', 'wireguard/osaka') }}"
+  shimane:
+    allowed_ips:
+      - 172.24.200.3/32
+    pubkey: "{{ lookup('community.general.passwordstore', 'wireguard/shimane') }}"
+wireguard_port: 51820

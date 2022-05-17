@@ -21,3 +21,6 @@ all:
         ebino.petroniocoelho.com:
         furano.petroniocoelho.com:
         toba.petroniocoelho.com:
+    wireguard_server:
+      hosts:
+        toba.petroniocoelho.com:
