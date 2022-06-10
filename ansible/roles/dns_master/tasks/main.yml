@@ -23,18 +23,29 @@
     owner: root
     group: named
     mode: "640"
-  loop: "{{ dns_slaves }}"
+  loop: "{{ dns_slaves.keys() }}"
 
 - name: Manage TSIG keys for ssl bots
   ansible.builtin.template:
     src: tsig.j2
-    dest: /etc/named/{{ acme_tsig_prefix }}.{{ item }}.key
+    dest: /etc/named/_acme-challenge.{{ item }}.key
     owner: root
     group: named
     mode: "640"
   vars:
     is_ssl_bot_loop: true
   loop: "{{ acme_hosts.keys() }}"
+
+- name: Manage TSIG keys for workstations
+  ansible.builtin.template:
+    src: tsig.j2
+    dest: /etc/named/_workstation.{{ item }}.key
+    owner: root
+    group: named
+    mode: "640"
+  vars:
+    is_workstation_loop: true
+  loop: "{{ dns_workstations }}"
 
 - name: Manage zone configurations
   ansible.builtin.template:
@@ -48,12 +59,12 @@
 
 - name: Manage zone files
   ansible.builtin.template:
-    src: zone/{{ item }}.j2
+    src: zone_base.j2
     dest: /var/named/{{ item }}.zone
     owner: named
     group: named
     mode: "640"
-    force: "{% if item == acme_zone %}no{% else %}yes{% endif %}" # We don't want to overwrite a dynamic zone
+    force: no
   loop: "{{ dns_zones }}"
   register: zone_files
 

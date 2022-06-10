@@ -1,16 +1,20 @@
 acme_hosts:
   ebino.petroniocoelho.com:
     domains:
-      - ebino.petroniocoelho.com
+      petroniocoelho.com:
+        - ebino
+        - www
+        - .
   furano.petroniocoelho.com:
     domains:
-      - furano.petroniocoelho.com
+      petroniocoelho.com:
+        - furano
+        - www
+        - .
   toba.petroniocoelho.com:
     domains:
-      - toba.petroniocoelho.com
-      - petroniocoelho.com
-acme_tsig_prefix: _acme_challenge
-acme_zone: acme.coelho.dev
+      petroniocoelho.com:
+        - toba
 contact_email: petronio@petroniocoelho.com
 dehydrated_revision: 784fb806c891979262eef9c8f38e3c10b825aefd
 pki_cert_dir: /etc/pki/tls/certs

@@ -4,9 +4,8 @@ set -e
 set -u
 set -o pipefail
 
-ALIAS_ZONE="{{ acme_zone }}."
 CERTIFICATE_DIR="{{ pki_cert_dir }}"
-DNS_SERVER="internal.{{ dns_master }}"
+DNS_SERVER="internal.{{ dns_master['fqdn'] }}"
 FILE_GROUP="{{ ssl_bot_group }}"
 FILE_USER="{{ ssl_bot_user }}"
 KEY_DIR="{{ pki_key_dir }}"
@@ -15,10 +14,10 @@ TTL=300
 
 case "$1" in
     "deploy_challenge")
-        printf "server ${DNS_SERVER}\nupdate add %s.${ALIAS_ZONE} %d in TXT "%s"\nsend\n" "${2}" "${TTL}" "${4}" | $NSUPDATE
+        printf "server ${DNS_SERVER}\nupdate add _acme-challenge.%s. %d in TXT "%s"\nsend\n" "${2}" "${TTL}" "${4}" | $NSUPDATE
         ;;
     "clean_challenge")
-        printf "server ${DNS_SERVER}\nupdate delete %s.${ALIAS_ZONE} %d in TXT "%s"\nsend\n" "${2}" "${TTL}" "${4}" | $NSUPDATE
+        printf "server ${DNS_SERVER}\nupdate delete _acme-challenge.%s. %d in TXT "%s"\nsend\n" "${2}" "${TTL}" "${4}" | $NSUPDATE
         ;;
     "deploy_cert")
         test -f "${KEY_DIR}/${2}.key.pem" || touch "${KEY_DIR}/${2}.key.pem" && chown ${FILE_USER}:${FILE_GROUP} "${KEY_DIR}/${2}.key.pem" && chmod 0640 "${KEY_DIR}/${2}.key.pem"

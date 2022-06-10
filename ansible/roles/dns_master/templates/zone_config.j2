@@ -1,18 +1,23 @@
 zone "{{ item }}" IN {
     type master;
     notify yes;
-    notify-source {{ lookup('community.general.dig', 'internal.' + ansible_fqdn, 'qtype=A' ) }};
-    notify-source-v6 {{ lookup('community.general.dig', ansible_fqdn, 'qtype=AAAA' ) }};
-    allow-transfer { ! { ! { {% for dns_slave in dns_slaves %}{{ lookup('community.general.dig', 'internal.' + dns_slave, 'qtype=A') }}; {% endfor -%} }; any; }; { key "{{ dns_slaves | join('"; key "') }}"; }; };
+    notify-source {{ dns_master['private_ipv4_address'] }};
+    notify-source-v6 {{ dns_master['ipv6_address'] }};
+    allow-transfer { ! { ! { {% for dns_slave, dns_slave_vars in dns_slaves.items() %}{{ dns_slave_vars['private_ipv4_address'] }}; {% endfor -%} }; any; }; { key "{{ dns_slaves.keys() | join('."; key "') }}."; }; };
     file "{{ item }}.zone";
     dnssec-policy default;
-{% if item == acme_zone %}
     update-policy {
+{% for dns_workstation in dns_workstations %}
+        grant "_workstation.{{ dns_workstation }}." subdomain {{ item }}. ANY;
+{% endfor %}
 {% for acme_host, acme_host_vars in acme_hosts.items() %}
-{% for domain in acme_host_vars['domains'] %}
-        grant "{{ acme_tsig_prefix }}.{{ acme_host }}" name {{ domain }}.{{ acme_zone }} TXT;
+{% for domain, subdomains in acme_host_vars['domains'].items() %}
+{% if domain == item %}
+{% for subdomain in subdomains %}
+        grant "_acme-challenge.{{ acme_host }}." name _acme-challenge{% if subdomain != "." %}.{{ subdomain }}{% endif %}.{{ domain }}. TXT;
+{% endfor %}
+{% endif %}
 {% endfor %}
 {% endfor %}
     };
-{% endif %}
 };

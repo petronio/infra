@@ -1,1 +1,1 @@
-{{ lookup('community.general.passwordstore', 'dns/' + acme_tsig_prefix + '.' + ansible_fqdn + '_tsig returnall=yes') }}
+{{ lookup('community.general.passwordstore', 'dns/_acme-challenge.' + ansible_fqdn + '_tsig returnall=yes') }}

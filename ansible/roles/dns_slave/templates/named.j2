@@ -8,8 +8,8 @@
 //
 
 options {
-	listen-on port 53 { {{ lookup('community.general.dig', ansible_fqdn, 'qtype=A' ) }}; {{ lookup('community.general.dig', 'internal.' + ansible_fqdn, 'qtype=A' ) }}; };
-	listen-on-v6 port 53 { {{ lookup('community.general.dig', ansible_fqdn, 'qtype=AAAA' ) }}; };
+	listen-on port 53 { {{ dns_slaves[ansible_fqdn]['public_ipv4_address'] }}; {{ dns_slaves[ansible_fqdn]['private_ipv4_address'] }}; };
+	listen-on-v6 port 53 { {{ dns_slaves[ansible_fqdn]['ipv6_address'] }}; };
 	directory "/var/named";
 	dump-file "/var/named/data/cache_dump.db";
 	statistics-file "/var/named/data/named_stats.txt";
@@ -63,9 +63,9 @@ include "/etc/named/{{ dns_zone }}.conf";
 include "/etc/named/{{ ansible_fqdn }}.key";
 
 // Master server
-server {{ lookup('community.general.dig', 'internal.' + dns_master, 'qtype=A' ) }} {
-    keys { "{{ ansible_fqdn }}"; };
+server {{ dns_master['private_ipv4_address'] }} {
+    keys { "{{ ansible_fqdn }}."; };
 };
-server {{ lookup('community.general.dig', dns_master, 'qtype=AAAA' ) }} {
-    keys { "{{ ansible_fqdn }}"; };
+server {{ dns_master['ipv6_address'] }} {
+    keys { "{{ ansible_fqdn }}."; };
 };

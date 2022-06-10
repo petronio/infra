@@ -1,16 +1,12 @@
 terraform {
   required_providers {
-    cloudflare = {
-      source = "cloudflare/cloudflare"
+    dns = {
+      source = "hashicorp/dns"
     }
     hcloud = {
       source = "hetznercloud/hcloud"
     }
   }
-}
-
-data "cloudflare_zone" "petroniocoelho_com" {
-  name = "petroniocoelho.com"
 }
 
 data "hcloud_ssh_key" "petronio_ed25519" {
@@ -126,29 +122,26 @@ resource "hcloud_server" "ebino" {
   }
 }
 
-resource "cloudflare_record" "ebino_petroniocoelho_com_ipv4" {
-  name    = "ebino"
-  type    = "A"
-  value   = hcloud_server.ebino.ipv4_address
-  zone_id = data.cloudflare_zone.petroniocoelho_com.id
+resource "dns_a_record_set" "ebino_petroniocoelho_com" {
+  addresses = [hcloud_server.ebino.ipv4_address]
+  name      = "ebino"
+  zone      = "petroniocoelho.com."
 }
 
-resource "cloudflare_record" "ebino_petroniocoelho_com_ipv6" {
-  name    = "ebino"
-  type    = "AAAA"
-  value   = hcloud_server.ebino.ipv6_address
-  zone_id = data.cloudflare_zone.petroniocoelho_com.id
+resource "dns_aaaa_record_set" "ebino_petroniocoelho_com" {
+  addresses = [hcloud_server.ebino.ipv6_address]
+  name      = "ebino"
+  zone      = "petroniocoelho.com."
 }
 
 locals {
   ebino_network_list = tolist(hcloud_server.ebino.network)
 }
 
-resource "cloudflare_record" "internal_ebino_petroniocoelho_com" {
-  name    = "internal.ebino"
-  type    = "A"
-  value   = local.ebino_network_list[index(local.ebino_network_list.*.network_id, tonumber(hcloud_network_subnet.infra_1.network_id))].ip
-  zone_id = data.cloudflare_zone.petroniocoelho_com.id
+resource "dns_a_record_set" "internal_ebino_petroniocoelho_com" {
+  addresses = [local.ebino_network_list[index(local.ebino_network_list.*.network_id, tonumber(hcloud_network_subnet.infra_1.network_id))].ip]
+  name      = "internal.ebino"
+  zone      = "petroniocoelho.com."
 }
 
 resource "hcloud_rdns" "ebino_ipv4" {
@@ -189,29 +182,26 @@ resource "hcloud_server" "furano" {
   }
 }
 
-resource "cloudflare_record" "furano_petroniocoelho_com_ipv4" {
-  name    = "furano"
-  type    = "A"
-  value   = hcloud_server.furano.ipv4_address
-  zone_id = data.cloudflare_zone.petroniocoelho_com.id
+resource "dns_a_record_set" "furano_petroniocoelho_com" {
+  addresses = [hcloud_server.furano.ipv4_address]
+  name      = "furano"
+  zone      = "petroniocoelho.com."
 }
 
-resource "cloudflare_record" "furano_petroniocoelho_com_ipv6" {
-  name    = "furano"
-  type    = "AAAA"
-  value   = hcloud_server.furano.ipv6_address
-  zone_id = data.cloudflare_zone.petroniocoelho_com.id
+resource "dns_aaaa_record_set" "furano_petroniocoelho_com" {
+  addresses = [hcloud_server.furano.ipv6_address]
+  name      = "furano"
+  zone      = "petroniocoelho.com."
 }
 
 locals {
   furano_network_list = tolist(hcloud_server.furano.network)
 }
 
-resource "cloudflare_record" "internal_furano_petroniocoelho_com" {
-  name    = "internal.furano"
-  type    = "A"
-  value   = local.furano_network_list[index(local.furano_network_list.*.network_id, tonumber(hcloud_network_subnet.infra_1.network_id))].ip
-  zone_id = data.cloudflare_zone.petroniocoelho_com.id
+resource "dns_a_record_set" "internal_furano_petroniocoelho_com" {
+  addresses = [local.furano_network_list[index(local.furano_network_list.*.network_id, tonumber(hcloud_network_subnet.infra_1.network_id))].ip]
+  name      = "internal.furano"
+  zone      = "petroniocoelho.com."
 }
 
 resource "hcloud_rdns" "furano_ipv4" {
@@ -252,29 +242,26 @@ resource "hcloud_server" "toba" {
   }
 }
 
-resource "cloudflare_record" "toba_petroniocoelho_com_ipv4" {
-  name    = "toba"
-  type    = "A"
-  value   = hcloud_server.toba.ipv4_address
-  zone_id = data.cloudflare_zone.petroniocoelho_com.id
+resource "dns_a_record_set" "toba_petroniocoelho_com" {
+  addresses = [hcloud_server.toba.ipv4_address]
+  name      = "toba"
+  zone      = "petroniocoelho.com."
 }
 
-resource "cloudflare_record" "toba_petroniocoelho_com_ipv6" {
-  name    = "toba"
-  type    = "AAAA"
-  value   = hcloud_server.toba.ipv6_address
-  zone_id = data.cloudflare_zone.petroniocoelho_com.id
+resource "dns_aaaa_record_set" "toba_petroniocoelho_com" {
+  addresses = [hcloud_server.toba.ipv6_address]
+  name      = "toba"
+  zone      = "petroniocoelho.com."
 }
 
 locals {
   toba_network_list = tolist(hcloud_server.toba.network)
 }
 
-resource "cloudflare_record" "internal_toba_petroniocoelho_com" {
-  name    = "internal.toba"
-  type    = "A"
-  value   = local.toba_network_list[index(local.toba_network_list.*.network_id, tonumber(hcloud_network_subnet.infra_1.network_id))].ip
-  zone_id = data.cloudflare_zone.petroniocoelho_com.id
+resource "dns_a_record_set" "internal_toba_petroniocoelho_com" {
+  addresses = [local.toba_network_list[index(local.toba_network_list.*.network_id, tonumber(hcloud_network_subnet.infra_1.network_id))].ip]
+  name      = "internal.toba"
+  zone      = "petroniocoelho.com."
 }
 
 resource "hcloud_rdns" "toba_ipv4" {

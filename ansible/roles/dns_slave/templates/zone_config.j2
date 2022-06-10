@@ -1,7 +1,7 @@
 zone "{{ item }}" IN {
     type slave;
     notify no;
-    allow-notify { {{ lookup('community.general.dig', dns_master, 'qtype=AAAA' ) }}; };
-    masters { {{ lookup('community.general.dig', 'internal.' + dns_master, 'qtype=A' ) }}; };
+    allow-notify { {{ dns_master['ipv6_address'] }}; };
+    masters { {{ dns_master['private_ipv4_address'] }}; };
     file "{{ item }}.zone";
 };

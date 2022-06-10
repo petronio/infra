@@ -1,11 +1,9 @@
 # Infra
-The code for the infrastructure behind `petroniocoelho.com` and friends. While reusability isn't the intent of this project, it's possible to reuse most of it pretty easily.
+The code for the infrastructure behind `petroniocoelho.com` and friends. While reusability isn't the intent of this project, it's possible to reuse most of it with some effort.
 
 ## Services Managed
 
 ### **Authoritative DNS**
-Running secondary/development domains. Primary domain is still on Cloudflare for reliability purposes.
-
 - [x] Automated DNSSEC
 - [x] Master with dual read slave configuration
 - [x] TSIG slave authentication
@@ -33,25 +31,27 @@ A service I have used for a long time, great for backing up mobile devices.
 The external service providers currently used are:
 
 * AWS
-* Cloudflare
 * Hetzner
 
-Of those, AWS is easily replaced or removed, as it's currently only being used for storing and locking of the terraform state. Cloudflare and Hetzner would require a much larger overhaul, particularly within Terraform.
+Of those, AWS is easily replaced or removed, as it's currently only being used for storing and locking of the terraform state. Hetzner would require a much larger overhaul, particularly within Terraform.
 
-In addition to accounts for the above, you'll need to manually add your primary domain to Cloudflare and order the Hetzner storage box (they don't currently support Terraform for that service). If using AWS for storing terraform state, the `backend` section should be initially omitted, as the bucket and dynamodb table need to be created first. You'll also need to import the Cloudflare domain into the Terraform state at `platform_base.cloudflare_zone.DOMAIN` .
+In addition to accounts for the above, you'll need to order a Hetzner storage box (they don't currently support Terraform for that service). If using AWS for storing terraform state, the `backend` section should be initially omitted, as the bucket and dynamodb table need to be created first. 
 
 The `pass` utility is used extensively to store secrets outside of this repo and is called by both Terraform and Ansible. Its current structure is as follows:
 
 ```
 ├── api_keys
-│   ├── cloudflare
 │   └── hetzner
 ├── dns
-│   ├── _acme_challenge.ebino.petroniocoelho.com_tsig
-│   ├── _acme_challenge.furano.petroniocoelho.com_tsig
-│   ├── _acme_challenge.toba.petroniocoelho.com_tsig
+│   ├── _acme-challenge.ebino.petroniocoelho.com_tsig
+│   ├── _acme-challenge.furano.petroniocoelho.com_tsig
+│   ├── _acme-challenge.toba.petroniocoelho.com_tsig
 │   ├── ebino.petroniocoelho.com_tsig
-│   └── furano.petroniocoelho.com_tsig
+│   ├── furano.petroniocoelho.com_tsig
+│   ├── _workstation.osaka.petroniocoelho.com_tsig_algorithm
+│   ├── _workstation.osaka.petroniocoelho.com_tsig
+│   ├── _workstation.osaka.petroniocoelho.com_tsig_name
+│   └── _workstation.osaka.petroniocoelho.com_tsig_secret
 ├── storage_box
 │   ├── resilio_config
 │   ├── resilio_password
@@ -64,8 +64,15 @@ The `pass` utility is used extensively to store secrets outside of this repo and
 
 AWS authentication is handled with an `awscli` profile.
 
-If you intend to use the `dns_master` role, keep in mind that aside from pointing the nameservers to your `dns_slave` server at your registrar, you'll need to generate a DS record from the automatically generated keys with `dnssec-dsfromkey` and add it to your registrar for DNSSEC to validate. The keys are located at `/var/named/` on the master and end with `.key`.
+You should do a search & replace for `petroniocoelho.com`, `petroniocoelho_com`, and any server names you'd like to change. Review the variables in `ansible/group_vars/` as well.
 
-Since Cloudflare is doesn't have a method to restrict API tokens to edit specific records, only complete zones, we use a secondary domain managed by `dns_master` to handle the SSL certificate challenges. For the present configuration the secondary domain is `coelho.dev`, so you can run a search & replace for that.
+Although there is automation for DNS, since we're hosting the nameservers here as well, initial setup is necessary:
+* Comment out the `dns` provider and related resources in Terraform, then `terraform apply`
+* Once the machines are created, update `terraform/variables.tf` and `ansible/group_vars/dns.yml`
+* Update your local `/etc/hosts` to temporarily add the hostnames for the DNS master and slaves, as `ansible/hosts` uses them
+* Run `ansible_playbook base.yml dns_master.yml dns_slave.yml`
+* Un-comment the `dns` provider and related resources, then `terraform apply`
+* Update `NS`, `DS`, and glue records (A and AAAA records for your dns slaves) at your registrar
+  * `DS` records can be obtained from running `dnssec-dsfromkey` on the dns master against the `.key` files located in `/var/named/`
 
-With the exception of the above, you should just do a search & replace for `petroniocoelho.com`, `petroniocoelho_com`, and any server names you'd like to change. No need to worry about IP addresses, nothing is hard coded with the exception of the Hetzner network & subnet (which are also easy to change). Disable any of the ansible playbooks that you don't want to use from `all.yml` and you should be good to go.
+TSIG keys can be generated with `tsig-keygen FQDN`, remembering that the FQDN should include the ending root (`.`). FQDNs for ssl bot keys must be prefixed with `_acme-challenge.` and for workstation keys `_workstation.` .

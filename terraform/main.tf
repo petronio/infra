@@ -10,8 +10,8 @@ terraform {
     aws = {
       source = "hashicorp/aws"
     }
-    cloudflare = {
-      source = "cloudflare/cloudflare"
+    dns = {
+      source = "hashicorp/dns"
     }
     hcloud = {
       source = "hetznercloud/hcloud"
@@ -27,12 +27,25 @@ provider "aws" {
   region  = "eu-north-1"
 }
 
-data "pass_password" "api_keys_cloudflare" {
-  path = "api_keys/cloudflare"
+data "pass_password" "dns_workstation_tsig_algorithm" {
+  path = "dns/_workstation.${var.dns_workstation_fqdn}_tsig_algorithm"
 }
 
-provider "cloudflare" {
-  api_token = data.pass_password.api_keys_cloudflare.password
+data "pass_password" "dns_workstation_tsig_name" {
+  path = "dns/_workstation.${var.dns_workstation_fqdn}_tsig_name"
+}
+
+data "pass_password" "dns_workstation_tsig_secret" {
+  path = "dns/_workstation.${var.dns_workstation_fqdn}_tsig_secret"
+}
+
+provider "dns" {
+  update {
+    key_algorithm = data.pass_password.dns_workstation_tsig_algorithm.password
+    key_name      = data.pass_password.dns_workstation_tsig_name.password
+    key_secret    = data.pass_password.dns_workstation_tsig_secret.password
+    server        = var.dns_master_internal_ip
+  }
 }
 
 data "pass_password" "api_keys_hetzner" {
@@ -55,6 +68,6 @@ module "servers" {
   source = "./modules/servers"
 }
 
-module "acme" {
-  source = "./modules/acme"
+module "misc_dns" {
+  source = "./modules/misc_dns"
 }

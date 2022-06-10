@@ -1,0 +1,15 @@
+$ORIGIN {{ item }}.
+$TTL 3H
+@         IN SOA   {{ dns_master['fqdn'] }}. hostmaster (
+                         2022060900; serial
+                         1H; refresh
+                         1H; retry
+                         1W; expire
+                         3H ) ; TTL
+{% for dns_slave, dns_slave_vars in dns_slaves.items() %}
+@         IN NS    {{ dns_slave }}.
+{% if dns_slave_vars['base_domain'] == item %}
+{{ dns_slave }}. IN A {{ dns_slave_vars['public_ipv4_address'] }}
+{{ dns_slave }}. IN AAAA {{ dns_slave_vars['ipv6_address'] }}
+{% endif %}
+{% endfor %}

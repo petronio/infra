@@ -3,9 +3,6 @@ terraform {
     aws = {
       source = "hashicorp/aws"
     }
-    cloudflare = {
-      source = "cloudflare/cloudflare"
-    }
     hcloud = {
       source = "hetznercloud/hcloud"
     }
@@ -17,10 +14,6 @@ resource "aws_s3_account_public_access_block" "root" {
   block_public_policy     = true
   ignore_public_acls      = true
   restrict_public_buckets = true
-}
-
-resource "cloudflare_zone" "petroniocoelho_com" {
-  zone = "petroniocoelho.com"
 }
 
 resource "hcloud_ssh_key" "petronio_ed25519" {

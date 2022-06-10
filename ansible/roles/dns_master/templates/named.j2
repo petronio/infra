@@ -8,7 +8,7 @@
 //
 
 options {
-	listen-on port 53 { {{ lookup('community.general.dig', 'internal.' + ansible_fqdn, 'qtype=A' ) }}; };
+	listen-on port 53 { {{ dns_master['private_ipv4_address'] }}; };
 	//listen-on-v6 port 53 { ::1; };
 	directory "/var/named";
 	dump-file "/var/named/data/cache_dump.db";
@@ -60,11 +60,16 @@ include "/etc/named/{{ dns_zone }}.conf";
 {% endfor %}
 
 // Slave keys
-{% for dns_slave in dns_slaves %}
+{% for dns_slave in dns_slaves.keys() %}
 include "/etc/named/{{ dns_slave }}.key";
 {% endfor %}
 
 // SSL bot keys
 {% for acme_host in acme_hosts.keys() %}
-include "/etc/named/{{ acme_tsig_prefix }}.{{ acme_host }}.key";
+include "/etc/named/_acme-challenge.{{ acme_host }}.key";
+{% endfor %}
+
+// Workstation keys
+{% for dns_workstation in dns_workstations %}
+include "/etc/named/_workstation.{{ dns_workstation }}.key";
 {% endfor %}

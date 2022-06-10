@@ -1,10 +1,24 @@
-dns_master: toba.petroniocoelho.com
+dns_master:
+  fqdn: toba.petroniocoelho.com
+  ipv6_address: 2a01:4f8:c012:5065::1
+  private_ipv4_address: 172.24.0.4
+  public_ipv4_address: 142.132.188.223
 dns_slaves:
-  - ebino.petroniocoelho.com
-  - furano.petroniocoelho.com
+  ebino.petroniocoelho.com:
+    base_domain: petroniocoelho.com
+    ipv6_address: 2a01:4f8:c012:5066::1
+    private_ipv4_address: 172.24.0.2
+    public_ipv4_address: 138.201.92.14
+  furano.petroniocoelho.com:
+    base_domain: petroniocoelho.com
+    ipv6_address: 2a01:4f8:1c1c:7ebb::1
+    private_ipv4_address: 172.24.0.3
+    public_ipv4_address: 159.69.82.216
+dns_workstations:
+  - osaka.petroniocoelho.com
 dns_zones:
-  - acme.coelho.dev
   - coelho.dev
   - pastries.dev
   - petro.dev
   - petronio.dev
+  - petroniocoelho.com
