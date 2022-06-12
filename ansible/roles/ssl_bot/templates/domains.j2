@@ -1,15 +1,19 @@
+#jinja2:lstrip_blocks: True
 {% set ns = namespace(fqdns = []) %}
 {% for acme_host, acme_host_vars in acme_hosts.items() %}
-{% if acme_host == ansible_fqdn %}
-{% for domain, subdomains in acme_host_vars['domains'].items() %}
-{% for subdomain in subdomains %}
-{% if subdomain == '.' %}
-{% set ns.fqdns = ns.fqdns + [domain] %}
-{% else %}
-{% set ns.fqdns = ns.fqdns + [subdomain + '.' + domain] %}
-{% endif %}
-{% endfor %}
-{% endfor %}
-{% endif %}
+  {% if acme_host == ansible_fqdn %}
+    {% for domain, subdomains in acme_host_vars['domains'].items() %}
+      {% for subdomain in subdomains %}
+        {% if subdomain == '.' %}
+          {% set ns.fqdns = ns.fqdns + [domain] %}
+        {% else %}
+          {% set ns.fqdns = ns.fqdns + [subdomain + '.' + domain] %}
+          {% if subdomain + '.' + domain == ansible_fqdn %}{# Implicity add wildcard for own FQDN #}
+            {% set ns.fqdns = ns.fqdns + ['*.' + ansible_fqdn] %}
+          {% endif %}
+        {% endif %}
+      {% endfor %}
+    {% endfor %}
+  {% endif %}
 {% endfor %}
 {{ ns.fqdns|join(' ') }}
