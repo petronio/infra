@@ -74,12 +74,26 @@
     state: started
     enabled: yes
 
-- name: restart named
+- name: Restart named
   ansible.builtin.systemd:
     name: named.service
     state: restarted
   when: named_config.changed or zone_config.changed
 
-- name: rndc reload
+- name: Reload rndc
   ansible.builtin.command: rndc reload
   when: zone_files.changed
+
+- name: Restrict Certificate Authority of all domains to letsencrypt.org
+  community.general.nsupdate:
+    key_algorithm: "{{ lookup('community.general.passwordstore', 'dns/_workstation.' + hostvars['localhost'].ansible_fqdn + '_tsig_algorithm returnall=yes') }}"
+    key_name: "{{ lookup('community.general.passwordstore', 'dns/_workstation.' + hostvars['localhost'].ansible_fqdn + '_tsig_name returnall=yes') }}"
+    key_secret: "{{ lookup('community.general.passwordstore', 'dns/_workstation.' + hostvars['localhost'].ansible_fqdn + '_tsig_secret returnall=yes') }}"
+    record: "{{ item }}."
+    server: "{{ dns_master['private_ipv4_address'] }}"
+    type: CAA
+    value: 0 issue "letsencrypt.org"
+    zone: "{{ item }}"
+  loop: "{{ dns_zones }}"
+  delegate_to: localhost
+  become: false
