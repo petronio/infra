@@ -56,6 +56,28 @@ resource "hcloud_firewall" "dns_in" {
   }
 }
 
+resource "hcloud_firewall" "http_in" {
+  name = "http_in"
+  rule {
+    direction = "in"
+    protocol  = "tcp"
+    port      = "80"
+    source_ips = [
+      "0.0.0.0/0",
+      "::/0"
+    ]
+  }
+  rule {
+    direction = "in"
+    protocol  = "tcp"
+    port      = "443"
+    source_ips = [
+      "0.0.0.0/0",
+      "::/0"
+    ]
+  }
+}
+
 resource "hcloud_firewall" "ssh_in" {
   name = "ssh_in"
   rule {
@@ -106,6 +128,7 @@ resource "hcloud_server" "ebino" {
   image             = "centos-stream-9"
   firewall_ids = [
     hcloud_firewall.dns_in.id,
+    hcloud_firewall.http_in.id,
     hcloud_firewall.ssh_in.id
   ]
   location           = "fsn1"
@@ -166,6 +189,7 @@ resource "hcloud_server" "furano" {
   image             = "centos-stream-9"
   firewall_ids = [
     hcloud_firewall.dns_in.id,
+    hcloud_firewall.http_in.id,
     hcloud_firewall.ssh_in.id
   ]
   location           = "nbg1"

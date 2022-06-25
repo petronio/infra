@@ -29,26 +29,35 @@ data "hcloud_server" "furano_petroniocoelho_com" {
   name = "furano.petroniocoelho.com"
 }
 
-resource "dns_a_record_set" "petroniocoelho_com" {
+/*
+* Default A and AAAA records to web servers
+*/
+locals {
+  default_zones = [
+    "coelho.dev",
+    "pastries.dev",
+    "petro.dev",
+    "petronio.dev",
+    "petroniocoelho.com"
+  ]
+}
+
+resource "dns_a_record_set" "default_webservers" {
+  for_each = toset(local.default_zones)
   addresses = [
     data.hcloud_server.ebino_petroniocoelho_com.ipv4_address,
     data.hcloud_server.furano_petroniocoelho_com.ipv4_address
   ]
-  zone = "petroniocoelho.com."
+  zone = "${each.value}."
 }
 
-resource "dns_aaaa_record_set" "petroniocoelho_com" {
+resource "dns_aaaa_record_set" "default_webservers" {
+  for_each = toset(local.default_zones)
   addresses = [
     data.hcloud_server.ebino_petroniocoelho_com.ipv6_address,
     data.hcloud_server.furano_petroniocoelho_com.ipv6_address
   ]
-  zone = "petroniocoelho.com."
-}
-
-resource "dns_cname_record" "www_petroniocoelho_com" {
-  cname = "petroniocoelho.com."
-  name  = "www"
-  zone  = "petroniocoelho.com."
+  zone = "${each.value}."
 }
 
 resource "dns_mx_record_set" "petroniocoelho_com" {

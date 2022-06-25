@@ -19,6 +19,11 @@ A service I have used for a long time, great for backing up mobile devices.
 
 - [x] Mounted to a Hetzner storage box via encrypted CIFS
 
+### **HTTP server**
+- [x] Uses the generated Let's Encrypt certificate
+- [x] Allows per-site configuration
+- [x] Supports default redirects
+
 ## Planned Services & Features
 
 - [ ] Monitoring

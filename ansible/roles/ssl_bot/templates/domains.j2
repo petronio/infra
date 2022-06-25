@@ -2,14 +2,15 @@
 {% set ns = namespace(fqdns = []) %}
 {% for acme_host, acme_host_vars in acme_hosts.items() %}
   {% if acme_host == ansible_fqdn %}
+    {% set ns.fqdns = ns.fqdns + [ansible_fqdn] %} {# Always start domains list with own FQDN #}
+    {% set ns.fqdns = ns.fqdns + ['*.' + ansible_fqdn] %} {# Implicity add wildcard for own FQDN #}
     {% for domain, subdomains in acme_host_vars['domains'].items() %}
       {% for subdomain in subdomains %}
         {% if subdomain == '.' %}
           {% set ns.fqdns = ns.fqdns + [domain] %}
         {% else %}
-          {% set ns.fqdns = ns.fqdns + [subdomain + '.' + domain] %}
-          {% if subdomain + '.' + domain == ansible_fqdn %}{# Implicity add wildcard for own FQDN #}
-            {% set ns.fqdns = ns.fqdns + ['*.' + ansible_fqdn] %}
+          {% if subdomain + '.' + domain != ansible_fqdn %}
+            {% set ns.fqdns = ns.fqdns + [subdomain + '.' + domain] %}
           {% endif %}
         {% endif %}
       {% endfor %}

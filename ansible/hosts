@@ -13,6 +13,10 @@ all:
           hosts:
             ebino.petroniocoelho.com:
             furano.petroniocoelho.com:
+    http_server:
+      hosts:
+        ebino.petroniocoelho.com:
+        furano.petroniocoelho.com:
     resilio:
       hosts:
         toba.petroniocoelho.com:

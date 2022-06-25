@@ -1,0 +1,4 @@
+- hosts: http_server
+  become: true
+  roles:
+    - http_server

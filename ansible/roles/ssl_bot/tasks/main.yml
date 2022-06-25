@@ -38,6 +38,7 @@
     owner: "{{ ssl_bot_user }}"
     group: "{{ ssl_bot_group }}"
     mode: '640'
+  register: config_file
 
 - name: Manage /etc/dehydrated/domains.txt
   ansible.builtin.template:
@@ -46,6 +47,7 @@
     owner: "{{ ssl_bot_user }}"
     group: "{{ ssl_bot_group }}"
     mode: '640'
+  register: domains_file
 
 - name: Manage /etc/dehydrated/tsig.key
   ansible.builtin.template:
@@ -132,4 +134,4 @@
   ansible.builtin.systemd:
     name: ssl-bot.service
     state: started
-  when: service_file.changed
+  when: config_file.changed or domains_file.changed or service_file.changed

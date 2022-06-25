@@ -1,15 +1,29 @@
 acme_hosts:
   ebino.petroniocoelho.com:
     domains:
+      coelho.dev:
+        - .
+      pastries.dev:
+        - .
+      petro.dev:
+        - .
+      petronio.dev:
+        - .
       petroniocoelho.com:
         - ebino
-        - www
         - .
   furano.petroniocoelho.com:
     domains:
+      coelho.dev:
+        - .
+      pastries.dev:
+        - .
+      petro.dev:
+        - .
+      petronio.dev:
+        - .
       petroniocoelho.com:
         - furano
-        - www
         - .
   toba.petroniocoelho.com:
     domains:
